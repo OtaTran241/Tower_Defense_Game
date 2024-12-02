@@ -50,23 +50,23 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
    
 2. Start the game by running the `tower_defense_game.exe` file in Release folder.
 3. Game information and game instructions.
-`Tower information`: The tower will automatically shoot the nearest enemy (click on the tower to view its range).
+`Tower information`: The tower will automatically shoot the nearest enemy (click on the tower to view its range).  
 + `Tracking tower`: The tower shoot a bullet that tracks the enemy. 
 	- Mega upgrade: shoots 3 bullets that track the enemy.
 + `Triple tower`: The tower shoots 3 bullets in a straight line. 
 	- Mega upgrade: shoots 5 bullets in a straight line.
 + `Bullet Jump tower`: The tower shoots a bullet that jumps 2 more times to the nearest enemies. 
 	- Mega upgrade: the bullet jumps 4 more times to the nearest enemies.
-`Enemy information`: The enemy will follow the move path where they were spawned.
+`Enemy information`: The enemy will follow the move path where they were spawned.  
 + `Slow enemy`: The enemy is slow but has a lot of health. Drop: 50 gold
 + `Fast enemy`: The enemy is fast but has low health. Drop: 100 gold
 + `Clone enemy`: The enemy will split into 2 mini enemies when its health drops below 50. Drop: 200 gold
-`Upgrade information`: Each tower can be upgraded a maximum of 5 times, once reaches the maximum, it can be upgraded to Mega.
+`Upgrade information`: Each tower can be upgraded a maximum of 5 times, once reaches the maximum, it can be upgraded to Mega.  
 + Upgrade range: +30 range / 60 gold
 + Upgrade damage: +10 damage / 70 gold
 + Upgrade attack speed: -0.1 cool down / 80 gold
 + Upgrade mega: Special effect of the tower / 200% of the tower's gold
-`Game information`: Game mechanics.
+`Game information`: Game mechanics.  
 + Starting or restarting the game will randomly select 1-3 move paths (Direction from top to bottom or left to right). 
 + For each move path, you will receive 300 gold and 3 slots (you can click restart to choose your desired difficulty).
 + Kill enemies to earn gold. 
