@@ -61,7 +61,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 `Enemy information`: The enemy will follow the move path where they were spawned.  
 + `Slow enemy`: The enemy is slow but has a lot of health. Drop: 50 gold
 + `Fast enemy`: The enemy is fast but has low health. Drop: 100 gold
-+ `Clone enemy`: The enemy will split into 2 mini enemies when its health drops below 50. Drop: 200 gold
++ `Clone enemy`: The enemy will split into 2 mini enemies when its health drops below 50. Drop: 200 gold  
 `Upgrade information`: Each tower can be upgraded a maximum of 5 times, once reaches the maximum, it can be upgraded to Mega.  
 + Upgrade range: +30 range / 60 gold
 + Upgrade damage: +10 damage / 70 gold
