@@ -50,7 +50,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
    ```
    
 2. Start the game by running the `tower_defense_game.exe` file in Release folder.
-3. Game information and game instructions.
+3. Game information and game instructions.  
 `Tower information`: The tower will automatically shoot the nearest enemy (click on the tower to view its range).  
 + `Tracking tower`: The tower shoot a bullet that tracks the enemy. 
 	- Mega upgrade: shoots 3 bullets that track the enemy.
