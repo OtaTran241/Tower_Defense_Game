@@ -65,7 +65,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 + Upgrade range: +30 range / 60 gold
 + Upgrade damage: +10 damage / 70 gold
 + Upgrade attack speed: -0.1 cool down / 80 gold
-+ Upgrade mega: Special effect of the tower / 200% of the tower's gold 
++ Upgrade mega: Special effect of the tower / 200% of the tower's gold
 `Game information`: Game mechanics.
 + Starting or restarting the game will randomly select 1-3 move paths (Direction from top to bottom or left to right). 
 + For each move path, you will receive 300 gold and 3 slots (you can click restart to choose your desired difficulty).
