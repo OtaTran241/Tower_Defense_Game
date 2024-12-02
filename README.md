@@ -1,6 +1,6 @@
 
 # **Tower Defense Game - C++**
-<img src="./Images/GamePlay.gif" style="width:400px;"/>
+<img src="./images/GamePlay.gif" style="width:400px;"/>
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@
 ## **Introduction**
 Tower Defense Game is a simple yet engaging game built with **C++** using the **SFML (Simple and Fast Multimedia Library)** for graphics rendering and event handling. The project is structured using modern C++ techniques, emphasizing clean code design and maintainability. It demonstrates concepts such as **Object-Oriented Programming (OOP)**, **Dependency Inversion Principle (DIP)**, **smart pointers (`std::unique_ptr`)**, **multithreading**, and **event handling**.
 
-<img src="./Images/InGame1.png" style="width:400px;"/> <img src="./Images/InGame2.png" style="width:400px;"/>  
+<img src="./images/InGame1.png" style="width:400px;"/> <img src="./images/InGame2.png" style="width:400px;"/>  
 
 ## **Key Techniques and Concepts**
 ### **1. Object-Oriented Programming (OOP)**
