@@ -10,7 +10,7 @@
 - [Contributing](#Contributing)
 
 ## **Introduction**
-Tower Defense Game is a simple yet engaging game built with **C++** using the **SFML (Simple and Fast Multimedia Library)** for graphics rendering and event handling. The project is structured using modern C++ techniques, emphasizing clean code design and maintainability. It demonstrates concepts such as **Object-Oriented Programming (OOP)**, **Dependency Inversion Principle (DIP)**, **multithreading**, **event handling**, **smart pointers (`std::unique_ptr`,...)**
+Tower Defense Game is a simple yet engaging game built with **C++** using the **SFML (Simple and Fast Multimedia Library)** for graphics rendering and event handling. The project is structured using modern C++ techniques, emphasizing clean code design and maintainability. It demonstrates concepts such as **Object-Oriented Programming (OOP)**, **Dependency Inversion Principle (DIP)**, **multithreading**, **synchronization**,**event handling**, **smart pointers (`std::unique_ptr`,...)**
 
 <img src="./images/InGame1.png" style="width:400px;"/> <img src="./images/InGame2.png" style="width:400px;"/>  
 
@@ -32,7 +32,11 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 ### **4. Multithreading**
 - Background tasks like spawn enemy or game state updates are handled in separate threads, ensuring smooth rendering and responsive gameplay.
 
-### **5. Event Handling**
+### **5. Synchronization**
+- Mutex Protection:
+  - All actions that modify shared game data (like adding/removing enemies, updating entities) are protected using std::lock_guard<std::mutex> to avoid data races.
+
+### **6. Event Handling**
 - SFML's event system is used to handle user inputs like:
   - Mouse clicks for UI.
   - Keyboard inputs for placing, deleting, upgrading tower.
