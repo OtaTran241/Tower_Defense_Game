@@ -34,7 +34,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 
 ### **5. Synchronization**
 - Mutex Protection:
-  - All actions that modify shared game data (like adding/removing enemies, updating entities) are protected using std::lock_guard<std::mutex> to avoid data races.
+  - All actions that modify shared game data (like adding/removing enemies, updating entities) are protected using `std::lock_guard<std::mutex>` to avoid data races.
 
 ### **6. Event Handling**
 - SFML's event system is used to handle user inputs like:
