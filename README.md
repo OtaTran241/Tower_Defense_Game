@@ -16,15 +16,15 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 
 ## **Key Techniques and Concepts**
 ### **1. Object-Oriented Programming (OOP)**
-- Classes such as `Tower` and `Enemy` encapsulate game logic and properties.
-- Inheritance and polymorphism allow for easily extending functionality (e.g., different types of towers).
+- Classes such as `Tower`, `Enemy`, `UI`, `Game_engine`,... encapsulate game logic and properties.
+- Inheritance and polymorphism allow for easily extending functionality (e.g., different types of towers, different types of enemies, different types of bullets,...).
 
 ### **2. Dependency Inversion Principle (DIP)**
 - High-level modules (e.g., game logic) depend on abstractions, not concrete implementations.
-- Example: The `Enemy` and `Tower` classes interact through interfaces, making the game flexible for future extensions.
+- Example: The `Enemy`, `Tower`,... classes interact through interfaces, making the game flexible for future extensions.
 
 ### **3. Memory Management with `std::unique_ptr`**
-- Dynamic objects (e.g., towers and enemies) are managed using `std::unique_ptr`, ensuring:
+- Dynamic objects (e.g., towers, enemies and bullets) are managed using `std::unique_ptr`, ensuring:
   - No memory leaks.
   - Clear ownership semantics.
   - Automatic deallocation.
@@ -34,8 +34,8 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 
 ### **5. Event Handling**
 - SFML's event system is used to handle user inputs like:
-  - Mouse clicks for placing towers.
-  - Keyboard inputs for pausing or exiting the game.
+  - Mouse clicks for UI.
+  - Keyboard inputs for placing, deleting, upgrading tower.
   - ...
 
 ---
