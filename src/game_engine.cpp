@@ -108,8 +108,83 @@ void GameEngine::initializeKeyStates() {
     keyStates[sf::Keyboard::Escape] = false;
 }
 
+void GameEngine::spawnEnemyThread() {
+    isRunning = true;
+    enemySpawnThread = std::thread([this]() {
+        while (isRunning) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+            if (!isPaused) {
+                std::lock_guard<std::mutex> lock(entityMutex);
+                int random = randomBetween(0, 2);
+                if (random == 0) {
+                    addEnemy(spawnEnemyOnMovePath<FastEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
+                    std::cout << "Add fast enemy" << "\n";
+                }
+                else if (random == 1) {
+                    addEnemy(spawnEnemyOnMovePath<SlowEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
+                    std::cout << "Add slow enemy" << "\n";
+                }
+                else if (random == 2) {
+                    addEnemy(spawnEnemyOnMovePath<CloneEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
+                    std::cout << "Add clone enemy" << "\n";
+                }
+
+                spawnedEnemyCount++;
+
+                if (spawnedEnemyCount >= nextEnemyThreshold) {
+                    slotCount += 1;
+                    std::cout << "Slot increased! Total slots: " << slotCount << "\n";
+                    nextEnemyThreshold = static_cast<int>(nextEnemyThreshold * 1.8);
+                    std::cout << "Next threshold: " << nextEnemyThreshold << " enemies" << "\n";
+                }
+            }
+        }
+        });
+}
+
+void GameEngine::stopSpawnEnemyThread() {
+    isRunning = false; 
+    if (enemySpawnThread.joinable()) {
+        enemySpawnThread.join();
+    }
+}
+
+void GameEngine::startUpdateEntitiesThread() {
+    isRunning = true;
+    updateEntitiesThread = std::thread([this]() {
+        sf::Clock clock;
+        while (isRunning) {
+            float deltaTime = clock.restart().asSeconds();
+
+            {
+                std::lock_guard<std::mutex> lock(entityMutex); 
+                updateEntities(towers, deltaTime);
+                updateEntities(enemies, deltaTime);
+                updateEntities(bullets, deltaTime);
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
+        }
+        });
+}
+
+void GameEngine::stopUpdateEntitiesThread() {
+    isRunning = false;
+    if (updateEntitiesThread.joinable()) {
+        updateEntitiesThread.join(); 
+    }
+}
+
+GameEngine::~GameEngine() {
+    stopUpdateEntitiesThread();
+    stopSpawnEnemyThread();
+}
+
 void GameEngine::run() {
     sf::Clock clock;
+    spawnEnemyThread();
+    startUpdateEntitiesThread();
 
     while (window.isOpen()) {
         sf::Event event;
@@ -263,32 +338,9 @@ void GameEngine::run() {
 
         float deltaTime = clock.restart().asSeconds();
 
-        // Sinh kẻ địch tự động
-        enemySpawnTimer += deltaTime;
-        if (enemySpawnTimer >= enemySpawnInterval) {
-            enemySpawnTimer = randomBetween(0,1);
-            int random = randomBetween(0, 2);
-            if (random == 0) {
-                addEnemy(spawnEnemyOnMovePath<FastEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
-                std::cout << "Add fast enemy" << "\n";
-            }
-            else if (random == 1) {
-                addEnemy(spawnEnemyOnMovePath<SlowEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
-                std::cout << "Add slow enemy" << "\n";
-            }
-            else if (random == 2) {
-                addEnemy(spawnEnemyOnMovePath<CloneEnemy>(movePaths[randomBetween(0, movePaths.size() - 1)].get()));
-                std::cout << "Add clone enemy" << "\n";
-            }
-            spawnedEnemyCount++;
-
-            if (spawnedEnemyCount >= nextEnemyThreshold) {
-                slotCount += 1;
-                std::cout << "Slot increased! Total slots: " << slotCount << "\n";
-
-                nextEnemyThreshold = static_cast<int>(nextEnemyThreshold * 1.8);
-                std::cout << "Next threshold: " << nextEnemyThreshold << " enemies" << "\n";
-            }
+        {
+            std::lock_guard<std::mutex> lock(entityMutex);
+            processCollisionsAndLogic(*this, deltaTime);
         }
 
         // Tháp bắn đạn
@@ -297,19 +349,23 @@ void GameEngine::run() {
         }
 
         // Kiểm tra đạn và kẻ địch
-        processCollisionsAndLogic(*this, deltaTime);
+        {
+            std::lock_guard<std::mutex> lock(entityMutex);
+            processCollisionsAndLogic(*this, deltaTime);
+        }
 
         if (goldCount < 0) {
             restartButton.handleEvent(event, window);
         }
 
-        updateEntities(towers, deltaTime);
-        updateEntities(enemies, deltaTime);
-        updateEntities(bullets, deltaTime);
-
         goldCountLabel.setText("Gold: " + std::to_string(goldCount));
         slotCountLabel.setText("Slot: " + std::to_string(slotCount));
 
-        renderGame(*this);
+        {
+            std::lock_guard<std::mutex> lock(entityMutex);
+            renderGame(*this);
+        }
     }
+    stopSpawnEnemyThread();
+    stopUpdateEntitiesThread();
 }

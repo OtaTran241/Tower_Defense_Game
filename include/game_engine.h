@@ -17,6 +17,8 @@
 #include "upgrade.h"
 #include "move_node.h"
 #include "move_path.h"
+#include <thread>
+#include <mutex>
 
 class GameEngine {
 private:
@@ -71,8 +73,19 @@ private:
     void addTowerInPosition(Tower* tower, const sf::Vector2f& position);
     void initializeKeyStates();
 
+    std::atomic<bool> isRunning;
+    std::thread enemySpawnThread; 
+    std::thread updateEntitiesThread;
+    std::mutex entityMutex;
+
+    void spawnEnemyThread();
+    void stopSpawnEnemyThread();
+    void startUpdateEntitiesThread();
+    void stopUpdateEntitiesThread();
+
 public:
     GameEngine();
+    ~GameEngine();
 
     void addBullet(Bullet* bullet);
     void addTower(Tower* tower);
@@ -84,7 +97,6 @@ public:
     int getGoldCount() const;
 
     void run();
-
 };
 #endif 
 
