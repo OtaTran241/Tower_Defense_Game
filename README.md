@@ -30,7 +30,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
   - Automatic deallocation.
 
 ### **4. Multithreading**
-- Background tasks like enemy movement and game state updates are handled in separate threads, ensuring smooth rendering and responsive gameplay.
+- Background tasks like spawn enemy or game state updates are handled in separate threads, ensuring smooth rendering and responsive gameplay.
 
 ### **5. Event Handling**
 - SFML's event system is used to handle user inputs like:
