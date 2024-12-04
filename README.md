@@ -23,7 +23,7 @@ Tower Defense Game is a simple yet engaging game built with **C++** using the **
 - High-level modules (e.g., game logic) depend on abstractions, not concrete implementations.
 - Example: The `Enemy`, `Tower`,... classes interact through interfaces, making the game flexible for future extensions.
 
-### **3. Smart Pointers
+### **3. Smart Pointers**
 - Dynamic objects (e.g., towers, enemies and bullets) are managed using `std::unique_ptr`, ensuring:
   - No memory leaks.
   - Clear ownership semantics.
