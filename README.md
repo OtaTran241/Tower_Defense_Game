@@ -1,5 +1,5 @@
 
-# **Tower Defense Game - C++**
+# **Tower Defense Game - Modern C++**
 ## **Introduction**
 <img src="./images/GamePlay.gif" style="width:400px;"/>
 
