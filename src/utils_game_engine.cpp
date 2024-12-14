@@ -166,7 +166,6 @@ void processCollisionsAndLogic(GameEngine& engine, float deltaTime) {
             // Nếu kẻ địch trúng đạn
             else if (distance((*bulletIt)->getPosition(), enemy->getPosition()) <= enemy->getSize()) {
                 enemy->takeDamage((*bulletIt)->getDamage());
-                enemy->getDamageAnimation();
                 shouldErase = true;
 
                 if (enemy->isDead()) {
@@ -256,4 +255,144 @@ void renderGame(GameEngine& engine) {
     engine.window.draw(engine.windowBorder);
 
     engine.window.display();
+}
+
+void handleEvent(GameEngine& engine) {
+    while (engine.window.pollEvent(engine.event)) {
+        if (engine.event.type == sf::Event::Closed)
+            engine.window.close();
+
+        float minZoom = 1.0f;
+        float maxZoom = 2.0f;
+        static float currentZoom = 1.0f;
+
+        sf::Vector2i mouseScreenPosition = sf::Mouse::getPosition(engine.window);
+        sf::Vector2f mouseWorldPosition = engine.window.mapPixelToCoords(mouseScreenPosition);
+
+        // Lăn chuột
+        if (engine.event.type == sf::Event::MouseWheelScrolled) {
+            if (!engine.isPaused) {
+                float zoomFactor = 1.1f;
+                if (engine.event.mouseWheelScroll.delta > 0 && currentZoom > minZoom) {
+                    engine.view.zoom(1.0f / zoomFactor);
+                    currentZoom /= zoomFactor;
+                }
+                else if (engine.event.mouseWheelScroll.delta < 0 && currentZoom < maxZoom) {
+                    engine.view.zoom(zoomFactor);
+                    currentZoom *= zoomFactor;
+                }
+                engine.window.setView(engine.view);
+            }
+        }
+
+        // Click chuột
+        if (engine.event.type == sf::Event::MouseButtonPressed) {
+            // Click chuột trái
+            if (engine.event.mouseButton.button == sf::Mouse::Left) {
+                Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+                if (engine.restartButton.getGlobalBounds().contains(mouseWorldPosition)) {
+                    engine.restartButton.handleEvent(engine.event, engine.window);
+                }
+                else if (engine.pauseButton.getGlobalBounds().contains(mouseWorldPosition)) {
+                    engine.pauseButton.handleEvent(engine.event, engine.window);
+                }
+                else if (Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers)) {
+                    if (towerSelected) {
+                        towerSelected->showRange();
+                    }
+                }
+            }
+            // Click chuột phải
+            else if (engine.event.mouseButton.button == sf::Mouse::Right) {
+
+            }
+        }
+
+        // Click phím
+        if (engine.event.type == sf::Event::KeyPressed) {
+            if (!engine.keyStates[engine.event.key.code]) {
+                engine.keyStates[engine.event.key.code] = true;
+
+                if (engine.event.key.code == sf::Keyboard::Q) {
+                    Tower* bulletJumpTower = new BulletJumpTower(mouseWorldPosition.x, mouseWorldPosition.y);
+                    engine.addTowerInPosition(bulletJumpTower, mouseWorldPosition);
+                }
+
+                if (engine.event.key.code == sf::Keyboard::W) {
+                    Tower* trackingTower = new TrackingTower(mouseWorldPosition.x, mouseWorldPosition.y);
+                    engine.addTowerInPosition(trackingTower, mouseWorldPosition);
+                }
+
+                if (engine.event.key.code == sf::Keyboard::E) {
+                    Tower* tripleTower = new TripleTower(mouseWorldPosition.x, mouseWorldPosition.y);
+                    engine.addTowerInPosition(tripleTower, mouseWorldPosition);
+                }
+
+                if (engine.event.key.code == sf::Keyboard::R) {
+                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+                    if (towerSelected) {
+                        auto it = std::remove_if(engine.towers.begin(), engine.towers.end(),
+                            [towerSelected](const std::unique_ptr<Tower>& tower) {
+                                return tower.get() == towerSelected;
+                            });
+                        engine.addGold(towerSelected->getGoldPrice() / 2);
+                        engine.slotCount += 1;
+                        engine.towers.erase(it, engine.towers.end());
+                        std::cout << "Delete tower" << "\n";
+                    }
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+
+                    if (towerSelected) {
+                        engine.applyUpgrade(engine.upgradeRange, towerSelected);
+                    }
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+
+                    if (towerSelected) {
+                        engine.applyUpgrade(engine.upgradeAttackSpeed, towerSelected);
+                    }
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+
+                    if (towerSelected) {
+                        engine.applyUpgrade(engine.upgradeDamage, towerSelected);
+                    }
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, engine.towers);
+
+                    if (towerSelected) {
+                        if (engine.reduceGold(towerSelected->getGoldPrice() * 2)) {
+                            if (!towerSelected->hasUpgradeMega() && towerSelected->getUpgradeCount() == 0) {
+                                towerSelected->upgradeMega();
+                                std::cout << "Mega upgrade tower" << "\n";
+                            }
+                            else {
+                                engine.addGold(towerSelected->getGoldPrice() * 2);
+                                std::cout << "Base stats not yet fully upgraded or already upgrade mega" << "\n";
+                            }
+                        }
+                        else {
+                            std::cout << "Not enough gold to upgrade mega" << "\n";
+                        }
+                    }
+                }
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+                    engine.pauseButton.handleEvent(engine.event, engine.window);
+                }
+            }
+        }
+        else if (engine.event.type == sf::Event::KeyReleased) {
+            engine.keyStates[engine.event.key.code] = false;
+        }
+    }
 }

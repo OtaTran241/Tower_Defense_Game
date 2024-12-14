@@ -162,6 +162,9 @@ void GameEngine::startUpdateEntitiesThread() {
                 updateEntities(towers, deltaTime);
                 updateEntities(enemies, deltaTime);
                 updateEntities(bullets, deltaTime);
+
+                goldCountLabel.setText("Gold: " + std::to_string(goldCount));
+                slotCountLabel.setText("Slot: " + std::to_string(slotCount));
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10)); 
@@ -187,143 +190,9 @@ void GameEngine::run() {
     startUpdateEntitiesThread();
 
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            float minZoom = 1.0f;
-            float maxZoom = 2.0f;
-            static float currentZoom = 1.0f;
-
-            sf::Vector2i mouseScreenPosition = sf::Mouse::getPosition(window);
-            sf::Vector2f mouseWorldPosition = window.mapPixelToCoords(mouseScreenPosition);
-
-            // Lăn chuột
-            if (event.type == sf::Event::MouseWheelScrolled) {
-                if (!isPaused) {
-                    float zoomFactor = 1.1f;
-                    if (event.mouseWheelScroll.delta > 0 && currentZoom > minZoom) {
-                        view.zoom(1.0f / zoomFactor);
-                        currentZoom /= zoomFactor;
-                    }
-                    else if (event.mouseWheelScroll.delta < 0 && currentZoom < maxZoom) {
-                        view.zoom(zoomFactor);
-                        currentZoom *= zoomFactor;
-                    }
-                    window.setView(view);
-                }
-            }
-
-            // Click chuột
-            if (event.type == sf::Event::MouseButtonPressed) {
-                // Click chuột trái
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-                    if (restartButton.getGlobalBounds().contains(mouseWorldPosition)) {
-                        restartButton.handleEvent(event, window);
-                    }
-                    else if (pauseButton.getGlobalBounds().contains(mouseWorldPosition)) {
-                        pauseButton.handleEvent(event, window);
-                    }
-                    else if (Tower * towerSelected = getTowerAtPosition(mouseWorldPosition, towers)) {
-                        if (towerSelected) {
-                            towerSelected->showRange();
-                        }
-                    }
-                }
-                // Click chuột phải
-                else if (event.mouseButton.button == sf::Mouse::Right) {
-
-                }
-            }
-
-            // Click phím
-            if (event.type == sf::Event::KeyPressed) {
-                if (!keyStates[event.key.code]) {
-                    keyStates[event.key.code] = true;
-
-                    if (event.key.code == sf::Keyboard::Q) {
-                        Tower* bulletJumpTower = new BulletJumpTower(mouseWorldPosition.x, mouseWorldPosition.y);
-                        addTowerInPosition(bulletJumpTower, mouseWorldPosition);
-                    }
-
-                    if (event.key.code == sf::Keyboard::W) {
-                        Tower* trackingTower = new TrackingTower(mouseWorldPosition.x, mouseWorldPosition.y);
-                        addTowerInPosition(trackingTower, mouseWorldPosition);
-                    }
-
-                    if (event.key.code == sf::Keyboard::E) {
-                        Tower* tripleTower = new TripleTower(mouseWorldPosition.x, mouseWorldPosition.y);
-                        addTowerInPosition(tripleTower, mouseWorldPosition);
-                    }
-
-                    if (event.key.code == sf::Keyboard::R) {
-                        Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-                        if (towerSelected) {
-                            auto it = std::remove_if(towers.begin(), towers.end(),
-                                [towerSelected](const std::unique_ptr<Tower>& tower) {
-                                    return tower.get() == towerSelected;
-                                });
-                            addGold(towerSelected->getGoldPrice() / 2);
-                            slotCount += 1;
-                            towers.erase(it, towers.end());
-                            std::cout << "Delete tower" << "\n";
-                        }
-                    }
-
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-                        Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-
-                        if (towerSelected) {
-                            applyUpgrade(upgradeRange, towerSelected);
-                        }
-                    }
-
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-                        Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-
-                        if (towerSelected) {
-                            applyUpgrade(upgradeAttackSpeed, towerSelected);
-                        }
-                    }
-
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-                        Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-
-                        if (towerSelected) {
-                            applyUpgrade(upgradeDamage, towerSelected);
-                        }
-                    }
-
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
-                        Tower* towerSelected = getTowerAtPosition(mouseWorldPosition, towers);
-
-                        if (towerSelected) {
-                            if (reduceGold(towerSelected->getGoldPrice() * 2)) {
-                                if (!towerSelected->hasUpgradeMega() && towerSelected->getUpgradeCount() == 0) {
-                                    towerSelected->upgradeMega();
-                                    std::cout << "Mega upgrade tower" << "\n";
-                                }
-                                else {
-                                    addGold(towerSelected->getGoldPrice() * 2);
-                                    std::cout << "Base stats not yet fully upgraded or already upgrade mega" << "\n";
-                                }
-                            }
-                            else {
-                                std::cout << "Not enough gold to upgrade mega" << "\n";
-                            }
-                        }
-                    }
-
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-                        pauseButton.handleEvent(event, window);
-                    }
-                }
-            }
-            else if (event.type == sf::Event::KeyReleased) {
-                keyStates[event.key.code] = false;
-            }
+        {
+            std::lock_guard<std::mutex> lock(entityMutex);
+            handleEvent(*this);
         }
 
         if (isPaused) {
@@ -345,6 +214,7 @@ void GameEngine::run() {
 
         // Tháp bắn đạn
         for (auto& tower : towers) {
+            std::lock_guard<std::mutex> lock(entityMutex);
             tower->tryShoot(enemies, bullets);
         }
 
@@ -358,13 +228,7 @@ void GameEngine::run() {
             restartButton.handleEvent(event, window);
         }
 
-        goldCountLabel.setText("Gold: " + std::to_string(goldCount));
-        slotCountLabel.setText("Slot: " + std::to_string(slotCount));
-
-        {
-            std::lock_guard<std::mutex> lock(entityMutex);
-            renderGame(*this);
-        }
+        renderGame(*this);
     }
     stopSpawnEnemyThread();
     stopUpdateEntitiesThread();

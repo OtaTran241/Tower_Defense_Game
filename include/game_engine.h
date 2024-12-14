@@ -36,6 +36,7 @@ private:
     sf::RectangleShape helpPanel;
     sf::View view;
     sf::Sprite backgroundSprite;
+    sf::Event event;
 
     std::map<sf::Keyboard::Key, bool> keyStates;
 
@@ -69,6 +70,7 @@ private:
     friend void processCollisionsAndLogic(GameEngine& game, float deltaTime);
     friend void renderGame(GameEngine& engine);
     friend void setHelpText(GameEngine& engine);
+    friend void handleEvent(GameEngine& engine);
 
     void addTowerInPosition(Tower* tower, const sf::Vector2f& position);
     void initializeKeyStates();

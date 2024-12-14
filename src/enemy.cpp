@@ -68,6 +68,7 @@ sf::Vector2f Enemy::getDirection() const {
 }
 
 void Enemy::takeDamage(int damage) {
+    getDamageAnimation();
     health -= damage;
 }
 
